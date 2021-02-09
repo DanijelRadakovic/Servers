@@ -7,11 +7,12 @@ services:
       args:
         STAGE: ${STAGE:-dev}
       target: ${TARGET:-appWebServerRuntime}
-    image: danijelradakovic/servers:${VERSION:-0.2.0}-${STAGE:-dev}
+    image: danijelradakovic/servers:${VERSION:-1.0.0}-${STAGE:-dev}
     container_name: servers
     restart: on-failure
     networks:
-      - servers
+      - backend
+      - database
     ports:
       - 8080:8080
     environment:
@@ -19,15 +20,17 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DOMAIN: ${DATABASE_DOMAIN}
       DATABASE_SCHEMA: ${DATABASE_SCHEMA}
+      RMQ_HOST: ${MESSAGE_BROKER}
     depends_on: 
       - database
+      - message-broker
     
   database:
     image: mysql:${MYSQL_VERSION:-8.0.19}
     container_name: mysql
     restart: always
     networks:
-      - servers
+      - database
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
@@ -36,11 +39,22 @@ services:
     volumes:
       - database-data:/var/lib/mysql
 
+  message-broker:
+    image: rabbitmq:management-alpine
+    container_name: rabbitmq-broker
+    ports:
+      - 15672:15672
+    networks:
+      - backend
+
 volumes:
   database-data:
     name: server-database
 
 networks:
-  servers:
-    name: servers
+  backend:
+    name: backend
+    driver: bridge
+  database:
+    name: database
     driver: bridge

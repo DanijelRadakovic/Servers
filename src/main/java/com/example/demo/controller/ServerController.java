@@ -4,6 +4,7 @@ import com.example.demo.conf.EndpointConfiguration;
 import com.example.demo.converter.ServerConverter;
 import com.example.demo.domain.Log;
 import com.example.demo.dto.ServerDTO;
+import com.example.demo.producer.LogProducer;
 import com.example.demo.service.ServerService;
 import com.example.demo.util.RequestCounter;
 import org.slf4j.Logger;
@@ -13,9 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping(EndpointConfiguration.SERVER_BASE_URL)
@@ -33,10 +32,12 @@ public class ServerController {
 
     private final ServerService service;
     private final RequestCounter counter;
+    private final LogProducer logProducer;
 
-    public ServerController(ServerService service, RequestCounter counter) {
+    public ServerController(ServerService service, RequestCounter counter, LogProducer logProducer) {
         this.service = service;
         this.counter = counter;
+        this.logProducer = logProducer;
     }
 
     /**
@@ -45,9 +46,10 @@ public class ServerController {
      * @return all available servers
      */
     @GetMapping
-    public ResponseEntity<List<ServerDTO>> getAll() throws IOException, TimeoutException {
+    public ResponseEntity<List<ServerDTO>> getAll() {
         String logContent = String.format(LOG_GET_ALL, DEFAULT_USER, counter.get(EndpointConfiguration.SERVER_BASE_URL));
         LOGGER.info(logContent);
+        logProducer.send(new Log(SERVICE_NAME, logContent));
         return new ResponseEntity<>(
                 ServerConverter.fromEntityList(service.getAll(), ServerConverter::fromEntity),
                 HttpStatus.OK
@@ -61,9 +63,10 @@ public class ServerController {
      * @return server with requested id
      */
     @GetMapping(EndpointConfiguration.SERVER_ID_ENDPOINT)
-    public ResponseEntity<ServerDTO> getById(@PathVariable Long id) throws IOException, TimeoutException {
+    public ResponseEntity<ServerDTO> getById(@PathVariable Long id) {
         String logContent = String.format(LOG_GET_BY_ID, id, DEFAULT_USER, counter.get(EndpointConfiguration.SERVER_ID_URL));
         LOGGER.info(logContent);
+        logProducer.send(new Log(SERVICE_NAME, logContent));
         return new ResponseEntity<>(
                 ServerConverter.fromEntity(service.findById(id)),
                 HttpStatus.FOUND
@@ -77,9 +80,10 @@ public class ServerController {
      * @return added server
      */
     @PostMapping
-    public ResponseEntity<ServerDTO> save(@RequestBody ServerDTO server) throws IOException, TimeoutException {
+    public ResponseEntity<ServerDTO> save(@RequestBody ServerDTO server) {
         String logContent = String.format(LOG_SAVE, DEFAULT_USER, counter.get(EndpointConfiguration.SERVER_BASE_URL));
         LOGGER.info(logContent);
+        logProducer.send(new Log(SERVICE_NAME, logContent));
         return new ResponseEntity<>(
                 ServerConverter.fromEntity(service.save(ServerConverter.toEntity(server))),
                 HttpStatus.OK
@@ -93,9 +97,10 @@ public class ServerController {
      * @return message about action results
      */
     @DeleteMapping(value = EndpointConfiguration.SERVER_ID_ENDPOINT, produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<String> remove(@PathVariable Long id) throws IOException, TimeoutException {
+    public ResponseEntity<String> remove(@PathVariable Long id) {
         String logContent = String.format(LOG_REMOVE, id, DEFAULT_USER, counter.get(EndpointConfiguration.SERVER_BASE_URL));
         LOGGER.info(logContent);
+        logProducer.send(new Log(SERVICE_NAME, logContent));
         service.delete(id);
         return new ResponseEntity<>("Server successfully deleted!", HttpStatus.OK);
     }
