@@ -15,10 +15,11 @@ RUN apk --update --no-cache add curl tar && \
 
 
 FROM maven:3.6.3-ibmjava-8-alpine AS appWebServerBuild
+ARG STAGE=dev
 WORKDIR /usr/src/server
 COPY . .
 COPY --from=frontBuild /usr/src/${APPLLICATION_REPOSITORY}*/dist/servers ./src/main/resources/static
-RUN mvn package -DskipTests
+RUN mvn package -P${STAGE} -DskipTests
 
 
 FROM openjdk:8-jdk-alpine AS appWebServerRuntime
@@ -29,9 +30,10 @@ CMD java -jar servers.jar
 
 
 FROM maven:3.6.3-ibmjava-8-alpine AS appServerBuild
+ARG STAGE=dev
 WORKDIR /usr/src/server
 COPY . .
-RUN mvn package -DskipTests
+RUN mvn package -P${STAGE} -DskipTests
 
 
 FROM openjdk:8-jdk-alpine AS appServerRuntime

@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.InvalidServerReferenceException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(TimeoutException.class)
     public ResponseEntity<String> handleTimeException(TimeoutException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(InvalidServerReferenceException.class)
+    public ResponseEntity<String> handleInvalidServerReferenceException(InvalidServerReferenceException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
