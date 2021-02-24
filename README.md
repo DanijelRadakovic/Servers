@@ -29,25 +29,41 @@ docker-compose --env-file config/.env.dev config
 
 To setup an infrastructure for dev environment run the following command:
 ```shell
-docker-compose --env-file config/.env.dev up --build
+./start.sh -g dev
 ```
 
 To setup an infrastructure for test environment run the fllowing command:
 ```shell
-docker-compose --env-file config/.env.test -f docker-compose.yml -f docker-compose.test.yml up --build
+./start.sh -g test
 ```
 
-To destroy an infrastructure for test environment run the fllowing command:
+To destroy an infrastructure for prod environment run the fllowing command:
 ```shell
-docker-compose --env-file config/.env.test -f docker-compose.yml -f docker-compose.test.yml up --build
-```
-
-To setup an infrastructure for production environment run the fllowing command:
-```shell
-docker-compose --env-file config/.env.prod -f docker-compose.yml -f docker-compose.prod.yml up --build
+./start.sh -g prod
 ```
 
 To destroy an infrastructure for any environment run the following command:
 ```shell
 docker-compose down -v
 ```
+
+## Web Browser TLS Configuration
+Without a proper configuration of web browser the following error shall occur.
+![connection-error](docs/connection-error.jpeg)
+
+In order to solve this error you should add generated self-signed certificate.
+
+Go to security setting section and select Manage certificates options (image below shows security settings for Brave web browser).
+![security settings](docs/security-settings.jpeg)
+
+Click on **Authorities** tab, then on **Import** option. Select the following certificate: **tls/ca/tls-ca-chain.pem**. Select all options in following dialog.
+![options](docs/options.jpeg)
+
+The CA certificates should be imported.
+![CA certs](docs/ca-certs.jpeg)
+
+In order to authentificate to application, trusted client sertificate should be provided. Go to **Your certificates** section and click on **Import** option. Select the following certificate: **tls/certs/client/client.p12** and enter **password** in the following dialog.
+![password](docs/password.jpeg)
+
+Go to following site: https://localhost:8080 and select the trusted client sertificate for authentification.
+![select-client-cert](docs/select-client-cert.png)

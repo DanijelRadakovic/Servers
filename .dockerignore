@@ -12,3 +12,7 @@ Dockerfile
 docker-compose*.yml
 init.sql
 config
+templates
+start.sh
+tls
+docs

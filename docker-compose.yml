@@ -7,7 +7,7 @@ services:
       args:
         STAGE: ${STAGE:-dev}
       target: ${TARGET:-appWebServerRuntime}
-    image: danijelradakovic/servers:${VERSION:-1.0.0}-${STAGE:-dev}
+    image: danijelradakovic/servers:${VERSION:-1.1.0}-${STAGE:-dev}
     container_name: servers
     restart: on-failure
     networks:
@@ -20,7 +20,15 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DOMAIN: ${DATABASE_DOMAIN}
       DATABASE_SCHEMA: ${DATABASE_SCHEMA}
+      KEYSTORE: ${KEYSTORE}
+      KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD}
+      KEYSTORE_ALIAS: ${KEYSTORE_ALIAS}
+      TRUSTSTORE: ${TRUSTSTORE}
+      TRUSTSTORE_PASSWORD: ${TRUSTSTORE_PASSWORD}
       RMQ_HOST: ${MESSAGE_BROKER}
+      RMQ_PORT: ${RMQ_PORT}
+    volumes:
+      - ${KEYSTORE_PATH}:/etc/keystore
     depends_on: 
       - database
       - message-broker
@@ -43,9 +51,17 @@ services:
     image: rabbitmq:management-alpine
     container_name: rabbitmq-broker
     ports:
-      - 15672:15672
+      - 15671:15671
     networks:
       - backend
+    environment:
+      RABBITMQ_SSL_CACERTFILE: ${RABBITMQ_SSL_CACERTFILE}
+      RABBITMQ_SSL_CERTFILE: ${RABBITMQ_SSL_CERTFILE}
+      RABBITMQ_SSL_FAIL_IF_NO_PEER_CERT: ${RABBITMQ_SSL_FAIL_IF_NO_PEER_CERT}
+      RABBITMQ_SSL_KEYFILE: ${RABBITMQ_SSL_KEYFILE}
+      RABBITMQ_SSL_VERIFY: ${RABBITMQ_SSL_VERIFY}
+    volumes:
+      - ${RABBITMQ_KEYSTORE_PATH}:/etc/rabbitmq/cert
 
 volumes:
   database-data:

@@ -4,7 +4,7 @@ LABEL maintainer="danijelradakovic@uns.ac.rs"
 
 ARG REPOSITORY_OWNER=DanijelRadakovic
 ARG APPLLICATION_REPOSITORY=Servers-Front
-ARG APPLICATION_VERSION=v1.0.0
+ARG APPLICATION_VERSION=v1.1.0
 
 WORKDIR /usr/src
 RUN apk --update --no-cache add curl tar && \

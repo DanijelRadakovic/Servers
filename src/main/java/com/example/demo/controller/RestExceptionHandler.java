@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Controller that handles REST exceptions
@@ -18,6 +19,11 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(TimeoutException.class)
+    public ResponseEntity<String> handleTimeException(TimeoutException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(InvalidServerReferenceException.class)
     public ResponseEntity<String> handleInvalidServerReferenceException(InvalidServerReferenceException e) {
