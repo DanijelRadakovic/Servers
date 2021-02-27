@@ -14,7 +14,7 @@ RUN apk --update --no-cache add curl tar && \
     npm run build --prod
 
 
-FROM maven:3.6.3-ibmjava-8-alpine AS appWebServerBuild
+FROM maven:3.6.3-openjdk-11-slim AS appWebServerBuild
 ARG STAGE=dev
 WORKDIR /usr/src/server
 COPY . .
@@ -22,21 +22,21 @@ COPY --from=frontBuild /usr/src/${APPLLICATION_REPOSITORY}*/dist/servers ./src/m
 RUN mvn package -P${STAGE} -DskipTests
 
 
-FROM openjdk:8-jdk-alpine AS appWebServerRuntime
+FROM openjdk:11-jre-slim AS appWebServerRuntime
 WORKDIR /app
 COPY --from=appWebServerBuild /usr/src/server/target/servers.jar ./
 EXPOSE 8080
 CMD java -jar servers.jar
 
 
-FROM maven:3.6.3-ibmjava-8-alpine AS appServerBuild
+FROM maven:3.6.3-openjdk-11-slim AS appServerBuild
 ARG STAGE=dev
 WORKDIR /usr/src/server
 COPY . .
 RUN mvn package -P${STAGE} -DskipTests
 
 
-FROM openjdk:8-jdk-alpine AS appServerRuntime
+FROM openjdk:11-jre-slim AS appServerRuntime
 WORKDIR /app
 COPY --from=appServerBuild /usr/src/server/target/servers.jar ./
 EXPOSE 8080

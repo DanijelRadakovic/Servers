@@ -30,3 +30,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+tls/ca
+tls/certs
+tls/crl
