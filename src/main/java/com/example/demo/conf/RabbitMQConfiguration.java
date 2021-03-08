@@ -20,6 +20,9 @@ public class RabbitMQConfiguration {
     public static final String KEYSTORE_PROVIDER = "SunX509";
     public static final String QUEUE_NAME = "logs";
 
+    @Value("${TLS_ENABLED:false}")
+    private boolean tlsEnabled;
+
     /**
      * TLS version.
      */
@@ -84,25 +87,28 @@ public class RabbitMQConfiguration {
     public ConnectionFactory connectionFactory() {
 
         try {
-            KeyStore keyStore = KeyStore.getInstance(keystoreType);
-            keyStore.load(new FileInputStream(new File(keystore)), keystorePassword.toCharArray());
-
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KEYSTORE_PROVIDER);
-            kmf.init(keyStore, keystorePassword.toCharArray());
-
-            KeyStore trustStore = KeyStore.getInstance(truststoreType);
-            trustStore.load(new FileInputStream(new File(truststore)), truststorePassword.toCharArray());
-
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(KEYSTORE_PROVIDER);
-            tmf.init(trustStore);
-
-            SSLContext sslcontext = SSLContext.getInstance(algorithm);
-            sslcontext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-
             ConnectionFactory factory = new com.rabbitmq.client.ConnectionFactory();
             factory.setHost(host);
             factory.setPort(Integer.parseInt(port));
-            factory.useSslProtocol(sslcontext);
+
+            if (tlsEnabled) {
+                KeyStore keyStore = KeyStore.getInstance(keystoreType);
+                keyStore.load(new FileInputStream(keystore), keystorePassword.toCharArray());
+
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance(KEYSTORE_PROVIDER);
+                kmf.init(keyStore, keystorePassword.toCharArray());
+
+                KeyStore trustStore = KeyStore.getInstance(truststoreType);
+                trustStore.load(new FileInputStream(truststore), truststorePassword.toCharArray());
+
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance(KEYSTORE_PROVIDER);
+                tmf.init(trustStore);
+
+                SSLContext sslcontext = SSLContext.getInstance(algorithm);
+                sslcontext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+                factory.useSslProtocol(sslcontext);
+            }
 
             return factory;
 

@@ -27,24 +27,25 @@ Building container images can also be achieved using docker compose. Before runn
 docker-compose --env-file config/.env.dev config
 ```
 
-To setup an infrastructure for dev environment run the following command:
+To set up an infrastructure run the following command:
 ```shell
-./start.sh -g dev
+./start.sh [dev|test|prod]
 ```
 
-To setup an infrastructure for test environment run the fllowing command:
+To set up an infrastructure, enable TLS and generate required certificates run the following command:
 ```shell
-./start.sh -g test
+./start.sh -gt [dev|test|prod]
 ```
 
-To destroy an infrastructure for prod environment run the fllowing command:
+To set up an infrastructure, enable TLS and to use previously generated required certificates run the following command:
 ```shell
-./start.sh -g prod
+./start.sh -t [dev|test|prod]
 ```
+
 
 To destroy an infrastructure for any environment run the following command:
 ```shell
-docker-compose down -v
+./stop.sh [dev|test|prod]
 ```
 
 ## Web Browser TLS Configuration

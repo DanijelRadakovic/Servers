@@ -6,8 +6,9 @@ services:
       dockerfile: Dockerfile
       args:
         STAGE: ${STAGE:-dev}
+        APPLICATION_VERSION: ${FRONTEND_APP_VERSION}
       target: ${TARGET:-appWebServerRuntime}
-    image: danijelradakovic/servers:${VERSION:-1.1.1}-${STAGE:-dev}
+    image: danijelradakovic/servers:${VERSION:-1.1.2}-${STAGE:-dev}
     container_name: servers
     restart: on-failure
     networks:
@@ -20,6 +21,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DOMAIN: ${DATABASE_DOMAIN}
       DATABASE_SCHEMA: ${DATABASE_SCHEMA}
+      TLS_ENABLED: ${TLS_ENABLED}
       KEYSTORE: ${KEYSTORE}
       KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD}
       KEYSTORE_ALIAS: ${KEYSTORE_ALIAS}
@@ -51,7 +53,7 @@ services:
     image: rabbitmq:management-alpine
     container_name: rabbitmq-broker
     ports:
-      - 15671:15671
+      - ${RMQ_MANAGER_PORT}:${RMQ_MANAGER_PORT}
     networks:
       - backend
     environment:
